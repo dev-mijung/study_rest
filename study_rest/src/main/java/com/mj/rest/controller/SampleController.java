@@ -1,3 +1,14 @@
+/**
+ * REST 방식은 URI와 같이 결합하므로 회원(Member)이라는 자원을 대상으로 전송방식을 결합한다면
+ * 등록 /POST > /member/new
+ * 조회 /GET > /member/{id}
+ * 수정/PUT > /member/{id} + body(json 데이터 등)
+ * 삭제/DELETE > /member/{id}
+ * 
+ * POST 방식도 그렇지만 PUT,DELETE,방식은 브라우저에서 테스트 하기 어렵기 때문에,
+ * 개발시 jUnit이나 Restlet Client 등과 같은 도구를 이용하여 테스트하고 개발해야 함
+ */
+
 package com.mj.rest.controller;
 
 import java.util.HashMap;
@@ -10,10 +21,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mj.rest.domain.SampleVO;
+import com.mj.rest.domain.Ticket;
 
 import lombok.extern.log4j.Log4j;
 
@@ -93,5 +108,28 @@ public class SampleController {
 		}
 		
 		return result;
+	}
+	
+	// http://localhost:8080/sample/product/bags/1234
+	// @PathVariable을 적용하고 싶은 경우 {}을 이용하여 변수명을 지정하고 
+	// @PathVariable을 이용해서 지정된 이름의 변수값을 얻을 수 있음
+	// 값을 얻을 때에는 int, double과 같은 기본 자료형은 사용할 수 없음  
+	@GetMapping("/product/{cat}/{pid}")
+	public String[] getPath(
+			@PathVariable("cat") String cat,
+			@PathVariable("pid") Integer pid) {
+		
+				return new String[] {"category: " + cat, "product Id: " + pid};
+	}
+	
+	// @RequestBody를 사용하는 이유
+	// 요청(request)한 내용(body)을 처리하기 때문에 일반적인 파라미터 전달방식을 사용할 수 없기 때문
+	// JSON으로 전달되는 데이터를 받아서 Ticket타입으로 변환 함
+	@PostMapping("/ticket")
+	public Ticket convert(@RequestBody Ticket ticket) {
+		
+		log.info("convert............ticket" + ticket);
+		
+		return ticket;
 	}
 }
